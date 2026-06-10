@@ -1,0 +1,268 @@
+{
+  "info": {
+    "name": "JobPortal API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:8080/api" },
+    { "key": "accessToken", "value": "" },
+    { "key": "refreshToken", "value": "" }
+  ],
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Register Candidate",
+          "request": {
+            "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/auth/register",
+            "body": { "mode": "raw", "raw": "{\n  \"email\": \"candidate@example.com\",\n  \"username\": \"testcandidate\",\n  \"password\": \"Password@123\",\n  \"firstName\": \"Arjun\",\n  \"lastName\": \"Sharma\",\n  \"phoneNumber\": \"9876543210\",\n  \"role\": \"CANDIDATE\"\n}" }
+          }
+        },
+        {
+          "name": "Register Recruiter",
+          "request": {
+            "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/auth/register",
+            "body": { "mode": "raw", "raw": "{\n  \"email\": \"recruiter@example.com\",\n  \"username\": \"testrecruiter\",\n  \"password\": \"Password@123\",\n  \"firstName\": \"Priya\",\n  \"lastName\": \"Verma\",\n  \"role\": \"RECRUITER\"\n}" }
+          }
+        },
+        {
+          "name": "Login",
+          "event": [{ "listen": "test", "script": { "exec": ["const r = pm.response.json();", "if(r.data){pm.collectionVariables.set('accessToken', r.data.accessToken);pm.collectionVariables.set('refreshToken', r.data.refreshToken);}"], "type": "text/javascript" } }],
+          "request": {
+            "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/auth/login",
+            "body": { "mode": "raw", "raw": "{\n  \"email\": \"candidate@example.com\",\n  \"password\": \"Password@123\"\n}" }
+          }
+        },
+        {
+          "name": "Refresh Token",
+          "request": {
+            "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/auth/refresh-token",
+            "body": { "mode": "raw", "raw": "{\n  \"refreshToken\": \"{{refreshToken}}\"\n}" }
+          }
+        },
+        {
+          "name": "Forgot Password",
+          "request": {
+            "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/auth/forgot-password",
+            "body": { "mode": "raw", "raw": "{\n  \"email\": \"candidate@example.com\"\n}" }
+          }
+        },
+        {
+          "name": "Change Password",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{accessToken}}" }],
+            "url": "{{baseUrl}}/auth/change-password",
+            "body": { "mode": "raw", "raw": "{\n  \"currentPassword\": \"Password@123\",\n  \"newPassword\": \"NewPassword@456\"\n}" }
+          }
+        },
+        {
+          "name": "Logout",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }],
+            "url": "{{baseUrl}}/auth/logout"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Candidate",
+      "item": [
+        {
+          "name": "Get Profile",
+          "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }], "url": "{{baseUrl}}/candidate/profile" }
+        },
+        {
+          "name": "Update Profile",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{accessToken}}" }],
+            "url": "{{baseUrl}}/candidate/profile",
+            "body": { "mode": "raw", "raw": "{\n  \"headline\": \"Senior Software Engineer\",\n  \"summary\": \"5+ years experience in full-stack development\",\n  \"currentLocation\": \"Bangalore, Karnataka\",\n  \"preferredLocation\": \"Bangalore, Karnataka\",\n  \"expectedSalary\": 1500000,\n  \"experienceYears\": 5,\n  \"skills\": \"React, TypeScript, Java, Spring Boot\"\n}" }
+          }
+        },
+        {
+          "name": "Update Preferred Location",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{accessToken}}" }],
+            "url": "{{baseUrl}}/candidate/profile/location",
+            "body": { "mode": "raw", "raw": "{\n  \"preferredLocation\": \"Hyderabad, Telangana\"\n}" }
+          }
+        },
+        {
+          "name": "Update Expected Salary",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{accessToken}}" }],
+            "url": "{{baseUrl}}/candidate/profile/salary",
+            "body": { "mode": "raw", "raw": "{\n  \"expectedSalary\": 1200000,\n  \"salaryCurrency\": \"INR\"\n}" }
+          }
+        },
+        {
+          "name": "Upload Resume",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }],
+            "url": "{{baseUrl}}/candidate/resumes",
+            "body": { "mode": "formdata", "formdata": [{ "key": "file", "type": "file", "src": "" }] }
+          }
+        },
+        {
+          "name": "Get Resumes",
+          "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }], "url": "{{baseUrl}}/candidate/resumes" }
+        },
+        {
+          "name": "Delete Resume",
+          "request": { "method": "DELETE", "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }], "url": "{{baseUrl}}/candidate/resumes/1" }
+        }
+      ]
+    },
+    {
+      "name": "Jobs",
+      "item": [
+        {
+          "name": "Search Jobs",
+          "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/jobs?keyword=software&location=Bangalore&page=0&size=10", "host": ["{{baseUrl}}"], "path": ["jobs"], "query": [{ "key": "keyword", "value": "software" }, { "key": "location", "value": "Bangalore" }, { "key": "page", "value": "0" }, { "key": "size", "value": "10" }] } }
+        },
+        {
+          "name": "Get Job by ID",
+          "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }], "url": "{{baseUrl}}/jobs/1" }
+        },
+        {
+          "name": "Get Categories",
+          "request": { "method": "GET", "url": "{{baseUrl}}/categories" }
+        },
+        {
+          "name": "Create Job (Recruiter)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{accessToken}}" }],
+            "url": "{{baseUrl}}/recruiter/jobs",
+            "body": { "mode": "raw", "raw": "{\n  \"title\": \"Senior React Developer\",\n  \"description\": \"We are looking for a Senior React Developer...\",\n  \"requirements\": \"5+ years of React experience\",\n  \"skillsRequired\": \"React, TypeScript, Redux, Node.js\",\n  \"companyId\": 1,\n  \"categoryId\": 1,\n  \"location\": \"Bangalore, Karnataka\",\n  \"isRemote\": false,\n  \"employmentType\": \"FULL_TIME\",\n  \"experienceLevel\": \"SENIOR_LEVEL\",\n  \"minSalary\": 1500000,\n  \"maxSalary\": 2500000\n}" }
+          }
+        },
+        {
+          "name": "Get My Jobs (Recruiter)",
+          "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }], "url": "{{baseUrl}}/recruiter/jobs" }
+        }
+      ]
+    },
+    {
+      "name": "Applications",
+      "item": [
+        {
+          "name": "Apply to Job",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{accessToken}}" }],
+            "url": "{{baseUrl}}/candidate/applications",
+            "body": { "mode": "raw", "raw": "{\n  \"jobId\": 1,\n  \"coverLetter\": \"I am very interested in this position...\"\n}" }
+          }
+        },
+        {
+          "name": "Get My Applications",
+          "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }], "url": "{{baseUrl}}/candidate/applications" }
+        },
+        {
+          "name": "Withdraw Application",
+          "request": { "method": "PATCH", "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }], "url": "{{baseUrl}}/candidate/applications/1/withdraw" }
+        },
+        {
+          "name": "Save Job",
+          "request": { "method": "POST", "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }], "url": "{{baseUrl}}/candidate/saved-jobs/1" }
+        },
+        {
+          "name": "Get Saved Jobs",
+          "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }], "url": "{{baseUrl}}/candidate/saved-jobs" }
+        },
+        {
+          "name": "Get Job Applicants (Recruiter)",
+          "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }], "url": "{{baseUrl}}/recruiter/jobs/1/applications" }
+        },
+        {
+          "name": "Update Application Status (Recruiter)",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{accessToken}}" }],
+            "url": "{{baseUrl}}/recruiter/applications/1/status",
+            "body": { "mode": "raw", "raw": "{\n  \"status\": \"SHORTLISTED\",\n  \"recruiterNotes\": \"Strong candidate, schedule interview\"\n}" }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Notifications",
+      "item": [
+        {
+          "name": "Get Notifications",
+          "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }], "url": "{{baseUrl}}/notifications" }
+        },
+        {
+          "name": "Get Unread Count",
+          "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }], "url": "{{baseUrl}}/notifications/unread-count" }
+        },
+        {
+          "name": "Mark All Read",
+          "request": { "method": "PATCH", "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }], "url": "{{baseUrl}}/notifications/read-all" }
+        }
+      ]
+    },
+    {
+      "name": "Companies",
+      "item": [
+        {
+          "name": "Get All Companies",
+          "request": { "method": "GET", "url": "{{baseUrl}}/companies" }
+        },
+        {
+          "name": "Create Company (Recruiter)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{accessToken}}" }],
+            "url": "{{baseUrl}}/recruiter/companies",
+            "body": { "mode": "raw", "raw": "{\n  \"name\": \"TechCorp India Pvt Ltd\",\n  \"websiteUrl\": \"https://techcorp.in\",\n  \"description\": \"Leading technology company\",\n  \"industry\": \"Information Technology\",\n  \"companySize\": \"500-1000\",\n  \"headquartersLocation\": \"Bangalore, Karnataka\"\n}" }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Admin",
+      "item": [
+        {
+          "name": "Get All Users",
+          "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }], "url": "{{baseUrl}}/admin/users" }
+        },
+        {
+          "name": "Deactivate User",
+          "request": { "method": "PATCH", "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }], "url": "{{baseUrl}}/admin/users/1/deactivate" }
+        }
+      ]
+    },
+    {
+      "name": "User",
+      "item": [
+        {
+          "name": "Get Current User",
+          "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }], "url": "{{baseUrl}}/users/me" }
+        },
+        {
+          "name": "Update Profile",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{accessToken}}" }],
+            "url": "{{baseUrl}}/users/me",
+            "body": { "mode": "raw", "raw": "{\n  \"firstName\": \"Arjun\",\n  \"lastName\": \"Sharma\",\n  \"phoneNumber\": \"9876543210\"\n}" }
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,78 @@
+version: '3.8'
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: jobportal-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-12345678}
+      MYSQL_DATABASE: ${DB_NAME:-jobportal}
+      MYSQL_USER: ${DB_USERNAME:-jobportal}
+      MYSQL_PASSWORD: ${DB_PASSWORD:-12345678}
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./database/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${DB_ROOT_PASSWORD:-rootpassword123}"]
+      interval: 10s
+      timeout: 5s
+      retries: 15
+      start_period: 30s
+    networks:
+      - jobportal-network
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: jobportal-backend
+    restart: unless-stopped
+    depends_on:
+      mysql:
+        condition: service_healthy
+    environment:
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_NAME: ${DB_NAME:-jobportal}
+      DB_USERNAME: ${DB_USERNAME:-jobportal}
+      DB_PASSWORD: ${DB_PASSWORD:-jobportal123}
+      JWT_SECRET: ${JWT_SECRET:-JobPortalSecretKey2024_ChangeInProduction_XYZ789}
+      JWT_EXPIRATION: ${JWT_EXPIRATION:-86400000}
+      REFRESH_TOKEN_EXPIRATION: ${REFRESH_TOKEN_EXPIRATION:-604800000}
+      UPLOAD_DIRECTORY: /app/uploads
+      CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:3000,http://localhost:80,http://localhost}
+      JPA_DDL_AUTO: validate
+    ports:
+      - "8080:8080"
+    volumes:
+      - uploads_data:/app/uploads
+    networks:
+      - jobportal-network
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        VITE_API_BASE_URL: /api
+        VITE_APP_NAME: JobPortal
+        VITE_ENVIRONMENT: production
+    container_name: jobportal-frontend
+    restart: unless-stopped
+    depends_on:
+      - backend
+    ports:
+      - "80:80"
+    networks:
+      - jobportal-network
+
+volumes:
+  mysql_data:
+  uploads_data:
+
+networks:
+  jobportal-network:
+    driver: bridge
