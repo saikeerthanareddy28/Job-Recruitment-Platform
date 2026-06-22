@@ -1,6 +1,7 @@
 package com.jobportal.service;
 
 import com.jobportal.exception.BadRequestException;
+import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -29,6 +30,16 @@ public class FileStorageService {
 
     @Value("${app.upload.directory}")
     private String uploadDirectory;
+
+    @PostConstruct
+    public void init() {
+        log.warn("****************************************************************");
+        log.warn("* WARNING: File uploads are stored on the local filesystem at:  *");
+        log.warn("* {}     *", uploadDirectory);
+        log.warn("* This storage is EPHEMERAL and will be lost on redeploy.       *");
+        log.warn("* TODO: Replace with cloud storage (S3, Cloudinary, etc.)       *");
+        log.warn("****************************************************************");
+    }
 
     public String storeResume(MultipartFile file) {
         validateFileType(file, ALLOWED_RESUME_TYPES, "Only PDF and Word documents are allowed for resumes");
