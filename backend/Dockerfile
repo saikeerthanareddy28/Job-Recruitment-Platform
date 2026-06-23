@@ -17,7 +17,7 @@ COPY --from=build /app/target/*.jar app.jar
 RUN mkdir -p /app/uploads && chown -R jobportal:jobportal /app
 
 USER jobportal
-EXPOSE 8080
+EXPOSE 10000
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=10s --retries=5 --start-period=60s \
